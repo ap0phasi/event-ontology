@@ -1,0 +1,25 @@
+[project]
+name = "evlog"
+version = "0.1.0"
+description = "ev: an append-only event ledger for plans, decisions and actions"
+readme = "README.md"
+authors = [
+    { name = "ap0phasi", email = "66261738+ap0phasi@users.noreply.github.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "duckdb>=1.0.0",
+]
+
+[project.scripts]
+ev = "evlog.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.23,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "hypothesis>=6.0.0",
+]
