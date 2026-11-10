@@ -8,7 +8,7 @@ import json
 
 import pytest
 
-from helpers import run_cli
+from helpers import isolate_discovery, run_cli
 
 
 def test_find_matches_content_case_insensitively(ledger):
@@ -98,9 +98,10 @@ def test_sql_reads_from_stdin_with_dash(ledger, monkeypatch):
     assert "1" in out
 
 
-def test_sql_requires_existing_ledger(tmp_path):
+def test_sql_requires_existing_ledger(tmp_path, monkeypatch):
     empty = tmp_path / "nowhere"
     empty.mkdir()
+    isolate_discovery(monkeypatch, tmp_path)
     code, out, err = run_cli(["sql", "SELECT 1"], empty)
     assert code == 1
     assert "no ledger" in err

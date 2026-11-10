@@ -9,7 +9,7 @@ import os
 
 import pytest
 
-from helpers import Ledger, run_cli
+from helpers import Ledger, isolate_discovery, run_cli
 
 
 def test_sugar_commands_are_byte_identical_to_explicit_add(ledger):
@@ -149,13 +149,14 @@ def test_id_prefix_resolution_ambiguous_and_unknown(ledger):
     assert code == 1  # shorter than minimum 4 chars is also an error
 
 
-def test_no_ledger_found_does_not_silently_create_one(tmp_path):
+def test_no_ledger_found_does_not_silently_create_one(tmp_path, monkeypatch):
     """Only `ev init` (and an explicit --db/EV_DB) may bring a ledger
     file into existence. Any other command run where none can be
     discovered must fail loudly instead of silently vivifying an empty
     ledger in cwd."""
     empty_dir = tmp_path / "nowhere"
     empty_dir.mkdir()
+    isolate_discovery(monkeypatch, tmp_path)
 
     code, out, err = run_cli(["log", "--json"], empty_dir)
     assert code == 1

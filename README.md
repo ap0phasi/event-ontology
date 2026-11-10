@@ -156,8 +156,10 @@ Query commands additionally accept `--as-of` and `--line`.
 | `ev show ID` | the event, its edges, its status, the status of each `needs` target, and its evidence |
 | `ev status ID` | status only |
 | `ev log [--kind K] [--limit N]` | all events in seq order with status |
-| `ev ls [--status S]... [--kind K] [--include-retracted]` | filter by status (default: `open` = ready/blocked/stuck) |
+| `ev ls [--status S]... [--kind K] [--include-retracted] [--overdue]` | filter by status (default: `open` = ready/blocked/stuck); `--overdue` keeps only open events past their current time mark |
 | `ev find QUERY [--status S]... [--kind K] [--include-retracted]` | case-insensitive substring search over `content` (not status-scoped by default — searches everything unless `--status` is given) |
+| `ev when EVENT TIME [--note TEXT]` | append a time mark setting/correcting the event's scheduled instant (ISO 8601 with explicit offset or `Z`, future or past); latest mark wins |
+| `ev schedule [--from-time ISO] [--to-time ISO] [--kind K] [--status S]... [--overdue] [--include-retracted]` | events sorted by effective time (current time mark, else `occurred_at`); `--from-time`/`--to-time` are inclusive; `--overdue` keeps only open events past their current time mark |
 | `ev why ID` | ancestors, with depth |
 | `ev then ID` | descendants, with depth |
 | `ev tips` | live events with no children in the view |

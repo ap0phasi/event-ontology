@@ -27,6 +27,37 @@ def run_cli(args: list[str], cwd: Path):
         os.chdir(old_cwd)
 
 
+def isolate_discovery(monkeypatch, sandbox: Path):
+    """Make "no ledger found" tests hermetic.
+
+    Walk-up discovery is environment-sensitive: pytest's tmp_path lives
+    under the developer's home directory on Windows, and the recommended
+    place for a personal ledger *is* the home directory, so a real ledger
+    can legitimately exist above any test sandbox. Tests asserting "no
+    ledger found" from an empty directory must not depend on — or
+    accidentally open — whatever the developer keeps above the sandbox.
+    Clamp the walk so only ledgers inside `sandbox` count, and clear any
+    ambient EV_DB for the duration. The real walk-up logic, precedence
+    (explicit --db > EV_DB > discovery) and the found-inside case are all
+    still exercised."""
+    from evlog import store
+
+    real = store.discover_db_path
+    sandbox = Path(sandbox).resolve()
+
+    def clamped(start=None):
+        found = real(start)
+        if found is not None:
+            try:
+                found.relative_to(sandbox)
+            except ValueError:
+                return None
+        return found
+
+    monkeypatch.setattr(store, "discover_db_path", clamped)
+    monkeypatch.delenv("EV_DB", raising=False)
+
+
 class Ledger:
     def __init__(self, path: Path):
         self.path = Path(path)
